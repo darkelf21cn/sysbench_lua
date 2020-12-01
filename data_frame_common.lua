@@ -13,16 +13,20 @@
       mysql-port=8022
       mysql-user=msandbox
       mysql-password=msandbox
+      time=300
       EOL
 
    2. run a cleanup incase you left something in the database
-      sysbench ./data_frame_common.lua --config-file=sysbench.cnf --tables=5 cleanup
+      sysbench ./data_frame_common.lua --config-file=sysbench.conf --columns=6 --tables=5 cleanup
 
    3. run the prepare command to setup tables and insert data
-      sysbench ./data_frame_common.lua --config-file=sysbench.cnf --tables=5 --threads=16 --rand-type=uniform prepare
+      sysbench ./data_frame_common.lua --config-file=sysbench.conf --columns=6 --tables=5 --threads=16 --rand-type=uniform prepare
 
-   4. run the benchmark!
-      sysbench ./data_frame_common.lua --config-file=sysbench.cnf --tables=5 --threads=32 --rand-type=uniform --bc_pk_seeks=4 --bc-updates=1 --bc-updates=1 run
+   4. run the benchmark! The command below will create 5 tables for each data
+      types. Every table contains 6 columns and 10k rows. In each transaction,
+      4 pk_seeks, 1 insert, and 1 update benchmark will be performed and the
+      duration will be 5 minutes.
+      sysbench ./data_frame_common.lua --config-file=sysbench.conf --columns=6 --tables=5 --threads=32 --rand-type=uniform --bc_pk_seeks=4 --bc-inserts=1 --bc-updates=1 run
 ]]
 
 -- Command line options
@@ -34,25 +38,25 @@ sysbench.cmdline.options = {
    column_types =
       {"Number of data types to be tested. Split by comma {varchar, int, bigint, float, double, date, datetime, text, longtext, json}", {"varchar", "int", "bigint", "float", "double", "date", "datetime", "text", "longtext", "json"}},
    tables =
-      {"Tables to be created for each column_type", 4},
+      {"Tables to be created for each data type", 4},
    varchar_length =
       {"Length of varchar column", 128},
    max_range_interval =
       {"The max interval for doing a range scan", 100},
    bc_pk_seeks = 
-      {"Benchmark: pk_seek per transaction", 0},
+      {"Benchmark: number of pk_seeks per transaction", 0},
    bc_pk_ranges = 
-      {"Benchmark: pk_range per transaction", 0},
+      {"Benchmark: number of pk_ranges per transaction", 0},
    bc_index_seeks =
-      {"Benchmark: index_seek per transaction", 0},
+      {"Benchmark: number of index_seeks per transaction", 0},
    bc_index_ranges =
-      {"Benchmark: index_range per transaction", 0},
+      {"Benchmark: number of index_ranges per transaction", 0},
    bc_inserts =
-      {"Benchmark: inserts per transaction", 0},
+      {"Benchmark: number of inserts per transaction", 0},
    bc_deletes =
-      {"Benchmark: deletes per transaction", 0},
+      {"Benchmark: number of deletes per transaction", 0},
    bc_updates =
-      {"Benchmark: updates per transaction", 0},
+      {"Benchmark: number of updates per transaction", 0},
    reconnect =
       {"Reconnect after every N events. The default (0) is to not reconnect", 0},
 }
